@@ -1,4 +1,4 @@
-package com.example.breakfast.controller;
+package com.example.hsr.controller;
 
 
 import org.springframework.stereotype.Controller;

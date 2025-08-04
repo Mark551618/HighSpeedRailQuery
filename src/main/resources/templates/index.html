@@ -1,233 +1,164 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-tw">
 <head>
     <meta charset="UTF-8">
-    <title>早餐店點餐系統</title>
-    <style>/*由內向外依序是 content box 、padding、border、margin*/
+    <title>高鐵時刻查詢系統</title>
+    <style>
         body {
             background-image: url("/flowerPic.jpg"); /* 讀取我的背景圖片，檔案放在static資料夾內 */
             background-size: cover; /* 讓背景填滿整個畫面 */
-            background-position: 50% 50%; /* 讓圖片保持在畫面中央  x% y% */
             background-repeat: no-repeat; /* 避免圖片重複 */
-            text-align: center; /*文字置中*/
-            height: 100vh; /* 讓背景至少滿版 */
-            font-family: "Times New Roman", Arial, serif; /* 設定字體優先度 */
-            font-size: 22px; /*字體大小*/
-            padding-bottom: 100px; /*padding是內邊距，這邊是設定下內邊距為100px*/
+            font-family: Arial; /* 設定字體優先度 */
+            margin: 30px;
+        }
+        label {
+            margin-right: 10px;
+        }
+        select, input {
+            margin-right: 20px;
+        }
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #fdfdfd;
+        }
+        th {
+            border: 1px solid #0c0c0c;
+            padding: 8px;
+            text-align: center;
+            background-color: #aaaaaa;
+        }
+        td {
+            border: 1px solid #0c0c0c;
+            padding: 8px;
+            text-align: center;
+            background-color: #fdfdfd;
         }
 
-        .menu-container {
-            width: fit-content;       /* 讓寬度剛好包住內容 */
-            margin: 0 auto;           /*  margin是外邊距 ，上下的間距為0，左右自動調整空間達到置中的感覺*/
-            text-align: left; /*文字排列向左對齊*/
+        #fromStation {
+            font-size: 22px;
         }
-        .menu-container > div {
-            display: flex; /*彈性區塊容器*/
-            align-items: center; /*垂直留白的處理: 彈性區塊物件因為大小有時候不一樣，所以讓物件的上下皆留白，視覺效果看起來大小才會一樣*/
-            margin-bottom: 8px;
-            justify-content: flex-start; /*設定留白的方式，flex-start這是預設，版面區塊物件在前面，留白在後面*/
+        #toStation {
+            font-size: 22px;
         }
 
-        .menu-container span:first-child {
-            width: 300px; /*  固定寬度或用 max-width 控制 */
-            display: inline-block;
+        #travelDate {
+            font-size: 22px;
         }
 
-
-        #orderIdInput {
-            border-style: solid;/*外框風格 實心黑線*/
-            font-family: "Times New Roman", Arial, serif; /* 設定字體 */
+        #departTime {
             font-size: 22px;
         }
         .btn {
-            cursor: pointer;
             font-size: 22px;
         }
 
-        .add {
-            background-color: rgba(41, 145, 23, 0.93);
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            margin: 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
+        .railTitle {
+            text-align: center;
         }
-        .reduce {
-            background-color: #ff748b;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            margin: 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
     </style>
-    <script>
-        let cart = {
-            1: 0, 2: 0, 3: 0,
-            4: 0, 5: 0, 6: 0,
-            7: 0, 8: 0, 9: 0
-        };
-
-        function updateQuantity(productId, change) {
-            cart[productId] += change;
-            if (cart[productId] < 0) cart[productId] = 0;
-            document.getElementById(`qty-${productId}`).textContent = cart[productId];
-        }
-
-        function submitOrder() {
-            const tableNumber = prompt("請輸入桌號，例如 A1：");
-            if (!tableNumber) return;
-
-            const items = [];
-            for (const [productId, quantity] of Object.entries(cart)) {
-                if (quantity > 0) {
-                    items.push({
-                        productId: parseInt(productId),
-                        quantity: quantity
-                    });
-                }
-            }
-
-            if (items.length === 0) {
-                alert("尚未選擇任何餐點！");
-                return;
-            }
-
-            const order = {
-                tableNumber: tableNumber,
-                items: items
-            };
-
-            fetch("/orders", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(order)
-            }).then(res => {
-                if (res.ok) {
-                    alert("訂單送出成功！");
-                    location.reload();
-                } else {
-                    alert("訂單送出失敗！");
-                }
-            });
-        }
-
-        function queryOrderMain() {
-            fetch("/orders/main")
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById("queryResult").textContent = JSON.stringify(data, null, 2);
-                })
-                .catch(err => {
-                    document.getElementById("queryResult").textContent = "查詢失敗: " + err;
-                });
-        }
-
-        function queryOrderItems() {
-            const orderId = document.getElementById("orderIdInput").value;
-            if (!orderId) {
-                alert("請輸入訂單編號！");
-                return;
-            }
-
-            fetch(`/orders/${orderId}/items`)
-                .then(res => {
-                    if (!res.ok) {
-                        throw new Error(`錯誤碼 ${res.status}`);
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    document.getElementById("queryResult").textContent = JSON.stringify(data, null, 2);
-                })
-                .catch(err => {
-                    document.getElementById("queryResult").textContent = "查詢失敗: " + err;
-                });
-        }
-    </script>
 </head>
 <body>
-<h1>早餐店點餐系統</h1>
-<div class="menu-container">
-    <div><span>1. 火腿漢堡 50元</span>
-        <button class="reduce" onclick="updateQuantity(1, -1)">-</button>
-        <span id="qty-1">0</span>
-        <button class="add" onclick="updateQuantity(1, 1)">+</button>
-    </div>
 
-    <div><span>2. 燻雞漢堡 45元</span>
-        <button class="reduce" onclick="updateQuantity(2, -1)">-</button>
-        <span id="qty-2">0</span>
-        <button class="add" onclick="updateQuantity(2, 1)">+</button>
-    </div>
+<h2 class="railTitle"> 台灣高鐵時刻表查詢</h2>
 
-    <div><span>3. 日式雞排漢堡 65元</span>
-        <button class="reduce" onclick="updateQuantity(3, -1)">-</button>
-        <span id="qty-3">0</span>
-        <button class="add" onclick="updateQuantity(3, 1)">+</button>
-    </div>
+<label>出發站：</label>
+<select id="fromStation">
+    <option value="1000">台北</option>
+    <option value="1010">板橋</option>
+    <option value="1020">桃園</option>
+    <option value="1030">新竹</option>
+    <option value="1035">苗栗</option>
+    <option value="1040">台中</option>
+    <option value="1043">彰化</option>
+    <option value="1047">雲林</option>
+    <option value="1050">嘉義</option>
+    <option value="1060">台南</option>
+    <option value="1070">左營</option>
+</select>
 
-    <div><span>4. 熱狗蛋餅 40元</span>
-        <button class="reduce" onclick="updateQuantity(4, -1)">-</button>
-        <span id="qty-4">0</span>
-        <button class="add" onclick="updateQuantity(4, 1)">+</button>
-    </div>
+<label>到達站：</label>
+<select id="toStation">
+    <option value="1000">台北</option>
+    <option value="1010">板橋</option>
+    <option value="1020">桃園</option>
+    <option value="1030">新竹</option>
+    <option value="1035">苗栗</option>
+    <option value="1040">台中</option>
+    <option value="1043">彰化</option>
+    <option value="1047">雲林</option>
+    <option value="1050">嘉義</option>
+    <option value="1060">台南</option>
+    <option value="1070">左營</option>
+</select>
 
-    <div><span>5. 原味蛋餅 30元</span>
-        <button class="reduce" onclick="updateQuantity(5, -1)">-</button>
-        <span id="qty-5">0</span>
-        <button class="add" onclick="updateQuantity(5, 1)">+</button>
-    </div>
+<label>日期：</label>
+<input type="date" id="travelDate" value="2025-08-01">
 
-    <div><span>6. 培根蛋餅 45元</span>
-        <button class="reduce" onclick="updateQuantity(6, -1)">-</button>
-        <span id="qty-6">0</span>
-        <button class="add" onclick="updateQuantity(6, 1)">+</button>
-    </div>
+<!-- 🟩 出發時間輸入欄位（新增的） -->
+<label>出發時間：</label>
+<input type="time" id="departTime" placeholder="可選填">
+<small style="color: gray;">（可空白，預設顯示整天班次）</small>
 
-    <div><span>7. 奶茶 30元</span>
-        <button class="reduce" onclick="updateQuantity(7, -1)">-</button>
-        <span id="qty-7">0</span>
-        <button class="add" onclick="updateQuantity(7, 1)">+</button>
-    </div>
+<button class="btn" onclick="querySchedule()">查詢</button>
 
-    <div><span>8. 紅茶 20元</span>
-        <button class="reduce" onclick="updateQuantity(8, -1)">-</button>
-        <span id="qty-8">0</span>
-        <button class="add" onclick="updateQuantity(8, 1)">+</button>
-    </div>
+<table id="resultTable" style="display:none;">
+    <thead>
+    <tr>
+        <th>車次</th>
+        <th>出發時間</th>
+        <th>抵達時間</th>
+        <th>起始站</th>
+        <th>終點站</th>
+        <th>車廂類型</th>
+        <th>備註</th>
+    </tr>
+    </thead>
+    <tbody id="resultBody"></tbody>
+</table>
 
-    <div><span>9. 豆漿 20元</span>
-        <button class="reduce" onclick="updateQuantity(9, -1)">-</button>
-        <span id="qty-9">0</span>
-        <button class="add" onclick="updateQuantity(9, 1)">+</button>
-    </div>
-</div>
-<br>
-<button class="btn" onclick="submitOrder()">送出訂單</button>
+<script>
+    function querySchedule() {
+        const from = document.getElementById("fromStation").value;
+        const to = document.getElementById("toStation").value;
+        const date = document.getElementById("travelDate").value;
+        const departTime = document.getElementById("departTime").value; // 新增時間參數
 
-<hr>
+        // 加上時間參數的查詢字串
+        let url = `/hsr/schedule?from=${from}&to=${to}&date=${date}`;
+        if (departTime) {
+            url += `&time=${departTime}`;
+        }
 
-<h2>訂單查詢功能</h2>
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById("resultBody");
+                tbody.innerHTML = ""; // 清除上一筆查詢結果
 
-<!-- 查詢訂單主表 -->
-<button class="btn" onclick="queryOrderMain()">查詢訂單總表</button>
+                data.forEach(item => {
+                    const row = `<tr>
+                    <td>${item.trainNo}</td>
+                    <td>${item.departureTime}</td>
+                    <td>${item.arrivalTime}</td>
+                    <td>${item.startStationName}</td>
+                    <td>${item.endStationName}</td>
+                    <td>${item.trainTypeName || ""}</td>
+                    <td>${item.note || ""}</td>
+                </tr>`;
+                    tbody.innerHTML += row;
+                });
 
-<!-- 輸入訂單編號並查詢 -->
-<label for="orderIdInput">訂單編號：</label>
-<input type="number" id="orderIdInput" placeholder="請輸入訂單編號">
-<button class="btn" onclick="queryOrderItems()">查詢訂單明細</button>
+                document.getElementById("resultTable").style.display = "table";
+            })
+            .catch(err => {
+                alert("查詢失敗：" + err);
+                document.getElementById("resultTable").style.display = "none";
+            });
+    }
 
-<pre id="queryResult"></pre>
-
-
+</script>
 
 </body>
 </html>
