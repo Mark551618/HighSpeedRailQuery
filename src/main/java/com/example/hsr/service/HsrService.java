@@ -99,18 +99,14 @@ public class HsrService {
             TrainSchedule schedule = new TrainSchedule();
 
             schedule.setTrainNo(node.path("DailyTrainInfo").path("TrainNo").asText());
-            schedule.setTrainTypeName(node.path("DailyTrainInfo").path("TrainTypeName").path("Zh_tw").asText());
-
             schedule.setStartStationName(node.path("OriginStopTime").path("StationName").path("Zh_tw").asText());
             schedule.setDepartureTime(node.path("OriginStopTime").path("DepartureTime").asText());
 
             schedule.setEndStationName(node.path("DestinationStopTime").path("StationName").path("Zh_tw").asText());
             schedule.setArrivalTime(node.path("DestinationStopTime").path("ArrivalTime").asText());
 
-            // 備註欄
-            schedule.setNote(node.path("Note").path("Zh_tw").asText(null));
-
             scheduleList.add(schedule);
+
         }
 
         return scheduleList;

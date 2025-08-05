@@ -111,8 +111,6 @@
         <th>抵達時間</th>
         <th>起始站</th>
         <th>終點站</th>
-        <th>車廂類型</th>
-        <th>備註</th>
     </tr>
     </thead>
     <tbody id="resultBody"></tbody>
@@ -144,8 +142,6 @@
                     <td>${item.arrivalTime}</td>
                     <td>${item.startStationName}</td>
                     <td>${item.endStationName}</td>
-                    <td>${item.trainTypeName || ""}</td>
-                    <td>${item.note || ""}</td>
                 </tr>`;
                     tbody.innerHTML += row;
                 });

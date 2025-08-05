@@ -7,8 +7,7 @@ public class TrainSchedule {
     private String endStationName;     // 終點站（中文）
     private String departureTime;      // 出發時間
     private String arrivalTime;        // 抵達時間
-    private String trainTypeName;      // 車種名稱（如：標準車廂）
-    private String note;               // 備註（如：每日行駛）
+
 
     // Getters and Setters
     public String getTrainNo() {
@@ -51,19 +50,4 @@ public class TrainSchedule {
         this.arrivalTime = arrivalTime;
     }
 
-    public String getTrainTypeName() {
-        return trainTypeName;
-    }
-
-    public void setTrainTypeName(String trainTypeName) {
-        this.trainTypeName = trainTypeName;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
 }
